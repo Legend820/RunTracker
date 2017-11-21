@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RunTracker</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="started">开始于：</string>
+    <string name="latitude">纬度：</string>
+    <string name="longitude">经度：</string>
+    <string name="altitude">海拔：</string>
+    <string name="elapsed_time">计时：</string>
+    <string name="start">开始</string>
+    <string name="stop">停止</string>
+    <string name="gps_enabled">GPS开启</string>
+    <string name="gps_disable">GPS关闭</string>
+    <string name="cell_text">Run at %1$s</string>
+
+    
+
+</resources>
