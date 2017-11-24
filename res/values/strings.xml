@@ -13,8 +13,8 @@
     <string name="stop">停止</string>
     <string name="gps_enabled">GPS开启</string>
     <string name="gps_disable">GPS关闭</string>
-    <string name="cell_text">Run at %1$s</string>
-
+    <string name="cell_text">运动开始于：  %1$s</string>
+    <string name="new_run">新建</string>
     
 
 </resources>

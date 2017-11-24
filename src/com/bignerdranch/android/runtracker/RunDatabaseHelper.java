@@ -14,7 +14,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DB_NAME="runs.sqlite";
 	private static final int VERSION=1;
 	private static final String TABLE_RUN="run";
-	private static final String COLUMN_RUN_ID="id";
+	private static final String COLUMN_RUN_ID="_id";
 	private static final String COLUMN_RUN_START_DATE="start_date";
 	
     private static final String TABLE_LOCATION = "location";
@@ -54,7 +54,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 		return getWritableDatabase().insert(TABLE_LOCATION, null, cv);
 		
 	}
-	
+	//查询语句类似于select * from run order by start_date asc
 	public RunCursor queryRuns(){
 		Cursor wrapped=getReadableDatabase().query(TABLE_RUN, null, null, null, null, null, COLUMN_RUN_START_DATE+" asc");
 		return new RunCursor(wrapped);
@@ -66,10 +66,11 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 			super(c);
 			// TODO Auto-generated constructor stub
 		}
+		//选检查是否越界，然后用getrun方法遍历结果停里的每一行
 		public Run getRun(){
 			if (isBeforeFirst() || isAfterLast())
                 return null;
-            // first get the provider out so we can use the constructor
+            
             Run run=new Run();
             long runId=getLong(getColumnIndex(COLUMN_RUN_ID));
 			run.setId(runId);

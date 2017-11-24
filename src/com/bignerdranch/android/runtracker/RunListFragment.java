@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.CursorAdapter;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +19,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class RunListFragment extends ListFragment {
+	private static final int REQUEST_NEW_RUN=0;
 	private RunCursor mCursor;
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+		//¿ªÆôÓÒÉÏ½ÇµÄ²Ëµ¥
+		setHasOptionsMenu(true);
 		mCursor=RunManager.get(getActivity()).queryRuns();
 		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),mCursor);
 		setListAdapter(adapter);
@@ -29,6 +33,29 @@ public class RunListFragment extends ListFragment {
 		mCursor.close();
 		super.onDestroy();
 	}
+	
+	public void onCreateOptionsMenu(Menu menu,MenuInflater inflater){
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.run_list_options, menu);
+	}
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch (item.getItemId()){
+			case R.id.menu_item_new_run:
+			Intent i=new Intent(getActivity(),RunActivity.class);
+			startActivityForResult(i,REQUEST_NEW_RUN);
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(item);
+		}	
+	}
+	public void onActivityResult(int requestCode,int resultCode,Intent data){
+		if(REQUEST_NEW_RUN==requestCode){
+			mCursor.requery();
+			((RunCursorAdapter)getListAdapter()).notifyDataSetChanged();
+		}
+	}
+	
 
 	private static class RunCursorAdapter extends CursorAdapter{
 		private RunCursor mRunCursor;
@@ -49,7 +76,9 @@ public class RunListFragment extends ListFragment {
 			// TODO Auto-generated method stub
 			Run run=mRunCursor.getRun();
 			TextView startDateTextView=(TextView)view;
-			String cellText=context.getString(R.string.cell_text, run.getStartDate());
+			String dt= DateFormat.format("yyyy-MM-dd,hh:mm:ss,EEEE", run.getStartDate()).toString();
+			//Æ´½Ó×Ö·û´®
+			String cellText=context.getString(R.string.cell_text, dt);
 			startDateTextView.setText(cellText);
 		}
 
