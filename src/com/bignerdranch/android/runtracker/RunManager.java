@@ -1,5 +1,6 @@
 package com.bignerdranch.android.runtracker;
 
+import com.bignerdranch.android.runtracker.RunDatabaseHelper.LocationCursor;
 import com.bignerdranch.android.runtracker.RunDatabaseHelper.RunCursor;
 
 import android.app.PendingIntent;
@@ -76,6 +77,9 @@ public class RunManager {
     public boolean isTrackingRun() {
         return getLocationPendingIntent(false) != null;
     }
+    public boolean isTrackingRun(Run run) {
+        return run != null && run.getId() == mCurrentRunId;
+    }
     
     private void broadcastLocation(Location location) {
         Intent broadcast = new Intent(ACTION_LOCATION);
@@ -89,7 +93,7 @@ public class RunManager {
 		return run;
     }
 
-	private void startTrackingRun(Run run) {
+	public void startTrackingRun(Run run) {
 		// TODO Auto-generated method stub
 		mCurrentRunId=run.getId();
 		mPrefs.edit().putLong(PREF_CURRENT_RUN_ID, mCurrentRunId).commit();
@@ -120,8 +124,26 @@ public class RunManager {
 			Log.d("lzcrunManager", "没有正在运行的记录，忽略当时的位置信息");
 		}
 	}
-	
-	
+	//取得单个行程
+	public Run getRun(long id){
+		Run run=null;
+		RunCursor cursor=mHelper.queryRun(id);
+		cursor.moveToFirst();
+		if(!cursor.isAfterLast())
+			run=cursor.getRun();
+		cursor.close();
+		return run;
+	}
+	//取得行程最近的一次地理位置
+	public Location getLastLocationForRun(long runId){
+		Location location=null;
+		LocationCursor cursor=mHelper.queryLastLocationForRun(runId);
+		cursor.moveToFirst();
+		if(!cursor.isAfterLast())
+			location=cursor.getLocation();
+		cursor.close();
+		return location;
+	}
 	
 	
 }

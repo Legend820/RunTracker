@@ -56,7 +56,12 @@ public class RunListFragment extends ListFragment {
 		}
 	}
 	
-
+	public void onListItemClick(ListView l,View v,int position,long id){
+		Intent i=new Intent(getActivity(),RunActivity.class);
+		i.putExtra(RunActivity.EXTRA_RUN_ID, id);
+		startActivity(i);
+	}
+	
 	private static class RunCursorAdapter extends CursorAdapter{
 		private RunCursor mRunCursor;
 		public RunCursorAdapter(Context context, RunCursor cursor) {
@@ -85,4 +90,6 @@ public class RunListFragment extends ListFragment {
 
 		
 	}
+	
+
 }

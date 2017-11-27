@@ -20,10 +20,20 @@ import android.widget.Toast;
 @SuppressLint("SimpleDateFormat")
 public class RunFragment extends Fragment {
     private static final String TAG = "RunFragment";
+    private static final String ARG_RUN_ID="RUN_ID";
+    private RunManager mRunManager;
+    private Run mRun;
+    private Location mLastLocation;
+    private Button mStartButton, mStopButton;
+    private TextView mStartedTextView, mLatitudeTextView, 
+        mLongitudeTextView, mAltitudeTextView, mDurationTextView;
     
     private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
 
         protected void onLocationReceived(Context context, Location loc) {
+        	if(!mRunManager.isTrackingRun(mRun))
+        		return;
+        	
             mLastLocation = loc;
             if (isVisible()) 
                 updateUI();
@@ -36,20 +46,28 @@ public class RunFragment extends Fragment {
         
     };
     
-    private RunManager mRunManager;
-    
-    private Run mRun;
-    private Location mLastLocation;
-
-    private Button mStartButton, mStopButton;
-    private TextView mStartedTextView, mLatitudeTextView, 
-        mLongitudeTextView, mAltitudeTextView, mDurationTextView;
+    public static RunFragment newInstance(long runId){
+    	Bundle args=new Bundle();
+    	args.putLong(ARG_RUN_ID, runId);
+    	RunFragment rf=new RunFragment();
+    	rf.setArguments(args);
+		return rf;
+    	
+    }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mRunManager = RunManager.get(getActivity());
+        Bundle args=getArguments();
+        if(args!=null){
+        	long runId=args.getLong(ARG_RUN_ID,-1);
+        	if(runId!=-1){
+        		mRun=mRunManager.getRun(runId);
+        		mLastLocation=mRunManager.getLastLocationForRun(runId);
+        	}
+        }
     }
 
     @Override
@@ -69,7 +87,12 @@ public class RunFragment extends Fragment {
             public void onClick(View v) {
 //                mRunManager.startLocationUpdates();
 //                mRun = new Run();
-                mRun=mRunManager.startNewRun();
+              //  mRun=mRunManager.startNewRun();
+            	if(mRun==null){
+            		mRun=mRunManager.startNewRun();
+            	}else{
+            		mRunManager.startTrackingRun(mRun);
+            	}
             	updateUI();
             }
         });
@@ -104,6 +127,7 @@ public class RunFragment extends Fragment {
     
     private void updateUI() {
         boolean started = mRunManager.isTrackingRun();
+        boolean trackingThisRun=mRunManager.isTrackingRun(mRun);
         
         if (mRun != null){
         	Date mTime=mRun.getStartDate();
@@ -123,7 +147,8 @@ public class RunFragment extends Fragment {
 
         
         mStartButton.setEnabled(!started);
-        mStopButton.setEnabled(started);
+        //mStopButton.setEnabled(started);
+        mStopButton.setEnabled(started||trackingThisRun);
     }
     
 }
