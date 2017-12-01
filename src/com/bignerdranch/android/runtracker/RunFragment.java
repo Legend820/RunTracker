@@ -10,7 +10,10 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,6 +27,8 @@ import android.widget.Toast;
 public class RunFragment extends Fragment {
     private static final String TAG = "RunFragment";
     private static final String ARG_RUN_ID="RUN_ID";
+    private static final int LOAD_RUN=0;
+    private static final int LOAD_LOCATION=1;
     private RunManager mRunManager;
     private Run mRun;
     private Location mLastLocation;
@@ -31,8 +36,54 @@ public class RunFragment extends Fragment {
     private TextView mStartedTextView, mLatitudeTextView, 
         mLongitudeTextView, mAltitudeTextView, mDurationTextView;
     
-    private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
+    private class LocationLoaderCallbacks implements LoaderCallbacks<Location>{
 
+		@Override
+		public Loader<Location> onCreateLoader(int id, Bundle args) {
+			// TODO Auto-generated method stub
+			return new LastLocationLoader(getActivity(),args.getLong(ARG_RUN_ID));
+		}
+
+		@Override
+		public void onLoadFinished(Loader<Location> loader, Location location) {
+			// TODO Auto-generated method stub
+			mLastLocation=location;
+			updateUI();
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Location> loader) {
+			// TODO Auto-generated method stub
+			
+		}
+    }
+    
+    
+    private class RunLoaderCallbacks implements LoaderCallbacks<Run>{
+
+		@Override
+		public Loader<Run> onCreateLoader(int id, Bundle args) {
+			// TODO Auto-generated method stub
+			return new RunLoader(getActivity(),args.getLong(ARG_RUN_ID));
+		}
+
+		@Override
+		public void onLoadFinished(Loader<Run> loader, Run run) {
+			// TODO Auto-generated method stub
+			mRun=run;
+			updateUI();
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Run> loader) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    }
+    
+    
+    private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
         protected void onLocationReceived(Context context, Location loc) {
         	if(!mRunManager.isTrackingRun(mRun))
         		return;
@@ -69,8 +120,11 @@ public class RunFragment extends Fragment {
         if(args!=null){
         	long runId=args.getLong(ARG_RUN_ID,-1);
         	if(runId!=-1){
-        		mRun=mRunManager.getRun(runId);
-        		mLastLocation=mRunManager.getLastLocationForRun(runId);
+//        		mRun=mRunManager.getRun(runId);
+//       		mLastLocation=mRunManager.getLastLocationForRun(runId);
+        		LoaderManager lm=getLoaderManager();
+        		lm.initLoader(LOAD_RUN, args, new RunLoaderCallbacks());
+        		lm.initLoader(LOAD_LOCATION, args, new LocationLoaderCallbacks());
         	}
         }
     }

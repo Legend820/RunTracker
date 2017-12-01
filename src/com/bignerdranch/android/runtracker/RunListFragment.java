@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -19,9 +21,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class RunListFragment extends ListFragment {
+public class RunListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 	private static final int REQUEST_NEW_RUN=0;
-	private RunCursor mCursor;
+	//private RunCursor mCursor;
 	public static  RunManager mRunManager;
 	private boolean isFirst;
 	public void onCreate(Bundle savedInstanceState){
@@ -30,15 +32,15 @@ public class RunListFragment extends ListFragment {
 		setHasOptionsMenu(true);
 		isFirst=true;
 		mRunManager = RunManager.get(getActivity());
-		mCursor=RunManager.get(getActivity()).queryRuns();
-		
-		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),mCursor);
-		setListAdapter(adapter);
+//		mCursor=RunManager.get(getActivity()).queryRuns();
+//		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),mCursor);
+//		setListAdapter(adapter);
+		getLoaderManager().initLoader(0, null, this);
 	}
-	public void onDestroy(){
-		mCursor.close();
-		super.onDestroy();
-	}
+//	public void onDestroy(){
+//		mCursor.close();
+//		super.onDestroy();
+//	}
 	public void onPause(){
 		super.onPause();
 		isFirst=false;
@@ -47,9 +49,10 @@ public class RunListFragment extends ListFragment {
 	public void onResume(){
 		super.onResume();
 		if(isFirst!=true){
-		mCursor=RunManager.get(getActivity()).queryRuns();
-		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),mCursor);
-		setListAdapter(adapter);
+//		mCursor=RunManager.get(getActivity()).queryRuns();
+//		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),mCursor);
+//		setListAdapter(adapter);
+			getLoaderManager().initLoader(0, null, this);
 		}
 	}
 	
@@ -70,8 +73,9 @@ public class RunListFragment extends ListFragment {
 	}
 	public void onActivityResult(int requestCode,int resultCode,Intent data){
 		if(REQUEST_NEW_RUN==requestCode){
-			mCursor.requery();
-			((RunCursorAdapter)getListAdapter()).notifyDataSetChanged();
+//			mCursor.requery();
+//			((RunCursorAdapter)getListAdapter()).notifyDataSetChanged();
+			getLoaderManager().initLoader(0, null, this);
 		}
 	}
 	
@@ -79,6 +83,19 @@ public class RunListFragment extends ListFragment {
 		Intent i=new Intent(getActivity(),RunActivity.class);
 		i.putExtra(RunActivity.EXTRA_RUN_ID, id);
 		startActivity(i);
+	}
+	
+
+	private static class RunListCursorLoader extends SQLiteCursorLoader{
+
+		public RunListCursorLoader(Context context) {
+			super(context);
+			// TODO Auto-generated constructor stub
+		}
+		protected Cursor loadCursor(){
+			return RunManager.get(getContext()).queryRuns();
+		}
+		
 	}
 	
 	private static class RunCursorAdapter extends CursorAdapter{
@@ -112,6 +129,24 @@ public class RunListFragment extends ListFragment {
 			startDateTextView.setText(cellText);
 		}
 	
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		// TODO Auto-generated method stub
+		return new RunListCursorLoader(getActivity());
+	}
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		// TODO Auto-generated method stub
+		RunCursorAdapter adapter=new RunCursorAdapter(getActivity(),(RunCursor)cursor);
+		setListAdapter(adapter);
+		
+	}
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		// TODO Auto-generated method stub
+		setListAdapter(null);
 	}
 	
 
