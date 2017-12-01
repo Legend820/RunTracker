@@ -42,7 +42,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 		
 		return getWritableDatabase().insert(TABLE_RUN,null,cv);
 	}
-	
+	//插入地理位置信息到数据库
 	public long insertLocation(long runId,Location location){
 		ContentValues cv=new ContentValues();
 		cv.put(COLUMN_LOCATION_LATITUDE, location.getLatitude());

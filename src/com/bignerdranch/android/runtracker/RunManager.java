@@ -115,7 +115,7 @@ public class RunManager {
 	public RunCursor queryRuns(){
 		return mHelper.queryRuns();
 	}
-	
+	//插入当前旅程地理位置的方法
 	public void insertLocation(Location loc){
 		if(mCurrentRunId!=-1){
 			mHelper.insertLocation(mCurrentRunId, loc);

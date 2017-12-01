@@ -2,6 +2,7 @@ package com.bignerdranch.android.runtracker;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,8 +10,10 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -58,7 +61,9 @@ public class RunFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+      //在配置变化的时候将这个fragment保存下来
         setRetainInstance(true);
+        setHasOptionsMenu(true);
         mRunManager = RunManager.get(getActivity());
         Bundle args=getArguments();
         if(args!=null){
@@ -70,11 +75,27 @@ public class RunFragment extends Fragment {
         }
     }
 
+    public boolean onOptionsItemSelected(MenuItem item){
+    	switch(item.getItemId()){
+    		case android.R.id.home:
+    			if(NavUtils.getParentActivityName(getActivity())!=null){
+    				NavUtils.navigateUpFromSameTask(getActivity());
+    			}
+    			return true;
+    		default:
+    			return super.onOptionsItemSelected(item);
+    	}
+		
+    	
+    }
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_run, container, false);
-        
+        if(NavUtils.getParentActivityName(getActivity())!=null){
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         mStartedTextView = (TextView)view.findViewById(R.id.run_startedTextView);
         mLatitudeTextView = (TextView)view.findViewById(R.id.run_latitudeTextView);
         mLongitudeTextView = (TextView)view.findViewById(R.id.run_longitudeTextView);
@@ -136,7 +157,7 @@ public class RunFragment extends Fragment {
         }
         int durationSeconds = 0;
         mDurationTextView.setText(Run.formatDuration(durationSeconds));
-        if (mLastLocation != null) {
+        if (mRun!=null&&mLastLocation != null) {
             durationSeconds = mRun.getDurationSeconds(mLastLocation.getTime());
 
             mLatitudeTextView.setText(Double.toString(mLastLocation.getLatitude()));
@@ -148,7 +169,7 @@ public class RunFragment extends Fragment {
         
         mStartButton.setEnabled(!started);
         //mStopButton.setEnabled(started);
-        mStopButton.setEnabled(started||trackingThisRun);
+        mStopButton.setEnabled(started&&trackingThisRun);
     }
     
 }
